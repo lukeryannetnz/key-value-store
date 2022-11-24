@@ -6,32 +6,39 @@ type LogItem struct {
 	delete bool
 }
 
-type KeyValueStore struct {
+type keyValueStore struct {
 	items        map[string]string
 	pendingItems []LogItem
 }
 
-func (k *KeyValueStore) Set(key string, value string) {
+func NewKeyValueStore() keyValueStore {
+	k := keyValueStore{}
+	k.items = make(map[string]string)
+	k.pendingItems = make([]LogItem, 0)
+
+	return k
+}
+
+func (k *keyValueStore) Set(key string, value string) {
 	log := LogItem{key, value, false}
 
 	k.pendingItems = append(k.pendingItems, log)
 }
 
-func (k *KeyValueStore) Get(key string) string {
+func (k *keyValueStore) Get(key string) string {
 	return k.items[key]
 }
 
-func (k *KeyValueStore) Delete(key string) {
+func (k *keyValueStore) Delete(key string) {
 	log := LogItem{key, "", true}
 
 	k.pendingItems = append(k.pendingItems, log)
 }
 
-func (k *KeyValueStore) Begin() {
-	k.items = make(map[string]string)
+func (k *keyValueStore) Begin() {
 }
 
-func (k *KeyValueStore) Commit() {
+func (k *keyValueStore) Commit() {
 	for _, item := range k.pendingItems {
 		if item.delete {
 			delete(k.items, item.key)
@@ -39,8 +46,10 @@ func (k *KeyValueStore) Commit() {
 			k.items[item.key] = item.value
 		}
 	}
+
+	k.pendingItems = make([]LogItem, 0)
 }
 
-func (k *KeyValueStore) Rollback() {
+func (k *keyValueStore) Rollback() {
 	k.pendingItems = make([]LogItem, 0)
 }
