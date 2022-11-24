@@ -28,25 +28,19 @@ func TestMultipleCommits(t *testing.T) {
 	store := NewKeyValueStore()
 
 	store.Begin()
-
 	store.Set("foo", "bar")
-
 	store.Commit()
 
 	store.Begin()
-
 	store.Set("baz", "bing")
-
 	store.Commit()
 
 	value := store.Get("foo")
-
 	if value != "bar" {
 		t.Fatal("commit 1 didn't stick")
 	}
 
 	value2 := store.Get("baz")
-
 	if value2 != "bing" {
 		t.Fatal("commit 2 didn't stick")
 	}
