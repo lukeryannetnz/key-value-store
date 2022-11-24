@@ -1,26 +1,28 @@
 package store
 
-type LogItem struct {
+// an item in the transaction log
+type logItem struct {
 	key    string
 	value  string
 	delete bool
 }
 
+// the key value store, currently only supports a single transaction
 type keyValueStore struct {
 	items        map[string]string
-	pendingItems []LogItem
+	pendingItems []logItem
 }
 
 func NewKeyValueStore() keyValueStore {
 	k := keyValueStore{}
 	k.items = make(map[string]string)
-	k.pendingItems = make([]LogItem, 0)
+	k.pendingItems = make([]logItem, 0)
 
 	return k
 }
 
 func (k *keyValueStore) Set(key string, value string) {
-	log := LogItem{key, value, false}
+	log := logItem{key, value, false}
 
 	k.pendingItems = append(k.pendingItems, log)
 }
@@ -30,7 +32,7 @@ func (k *keyValueStore) Get(key string) string {
 }
 
 func (k *keyValueStore) Delete(key string) {
-	log := LogItem{key, "", true}
+	log := logItem{key, "", true}
 
 	k.pendingItems = append(k.pendingItems, log)
 }
@@ -47,9 +49,9 @@ func (k *keyValueStore) Commit() {
 		}
 	}
 
-	k.pendingItems = make([]LogItem, 0)
+	k.pendingItems = make([]logItem, 0)
 }
 
 func (k *keyValueStore) Rollback() {
-	k.pendingItems = make([]LogItem, 0)
+	k.pendingItems = make([]logItem, 0)
 }
